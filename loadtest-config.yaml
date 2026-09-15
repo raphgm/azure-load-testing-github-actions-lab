@@ -1,0 +1,15 @@
+version: v0.1
+testId: payments-api-pr-check
+testPlan: null              # omit for a URL-based test
+engineInstances: 1
+
+failureCriteria:
+  - avg(response_time_ms) > 800
+  - percentage(error) > 1
+  - avg(latency) > 500
+
+requestUrls:
+  - url: https://payments-api-staging.example.com/health
+    method: GET
+    headers:
+      Content-Type: application/json
