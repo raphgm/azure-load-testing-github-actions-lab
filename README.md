@@ -6,7 +6,7 @@ Companion lab for the article [Automate Azure Load Testing Using GitHub Actions]
 
 ---
 
-## 🎯 Architecture
+## Architecture
 
 ```mermaid
 flowchart TD
@@ -22,7 +22,7 @@ flowchart TD
 
 ---
 
-## 📚 Repository Structure
+## Repository Structure
 
 ```text
 .
@@ -41,7 +41,7 @@ flowchart TD
 
 ---
 
-## 🛠️ Quick Start
+## Quick Start
 
 ### 1. Provision the Azure Load Testing resource (Bicep)
 
