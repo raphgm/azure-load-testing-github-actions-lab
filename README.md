@@ -29,7 +29,8 @@ flowchart TD
 ├── README.md
 ├── .github/
 │   └── workflows/
-│       └── load-test.yml          # PR-triggered load test workflow (OIDC auth)
+│       ├── load-test.yml          # PR-triggered load test workflow (OIDC auth)
+│       └── load-test-push.yml     # Push-to-main variant — same job, different trigger + OIDC subject
 ├── loadtest-config.yaml           # URL-based test definition + pass/fail criteria
 └── src/
     ├── bicep/
@@ -65,6 +66,17 @@ az ad app federated-credential create --id "$APP_ID" --parameters '{
   "name": "github-actions-pr",
   "issuer": "https://token.actions.githubusercontent.com",
   "subject": "repo:YOUR_ORG/YOUR_REPO:pull_request",
+  "audiences": ["api://AzureADTokenExchange"]
+}'
+```
+
+The `pull_request` subject only covers the workflow in `load-test.yml`. If you also want the push-to-main variant (`load-test-push.yml`) to authenticate, it needs its own federated credential — the OIDC subject claim for a `push` trigger is the branch ref, not `pull_request`:
+
+```bash
+az ad app federated-credential create --id "$APP_ID" --parameters '{
+  "name": "github-actions-push-main",
+  "issuer": "https://token.actions.githubusercontent.com",
+  "subject": "repo:YOUR_ORG/YOUR_REPO:ref:refs/heads/main",
   "audiences": ["api://AzureADTokenExchange"]
 }'
 
