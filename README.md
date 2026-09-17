@@ -97,6 +97,13 @@ pip install -r requirements.txt
 python check_run.py --test-id payments-api-pr-check
 ```
 
+Unit tests for the pass/fail signal (`is_terminal_status`, `exit_code_for_result`) and the run-selection logic live in `test_check_run.py`, mocked against the REST response shape rather than a live test run:
+
+```bash
+cd src/python
+pytest test_check_run.py -v
+```
+
 ---
 
 ## Alternative: client-secret auth instead of OIDC

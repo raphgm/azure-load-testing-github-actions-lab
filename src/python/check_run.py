@@ -33,6 +33,20 @@ def get_latest_test_run(data_plane_uri: str, test_id: str, token: str) -> dict:
     return sorted(runs, key=lambda r: r["startDateTime"], reverse=True)[0]
 
 
+TERMINAL_STATUSES = ("DONE", "FAILED", "CANCELLED")
+
+
+def is_terminal_status(status: str) -> bool:
+    return status in TERMINAL_STATUSES
+
+
+def exit_code_for_result(result: str) -> int:
+    """The polling loop's actual pass/fail signal, pulled out as a pure
+    function so a refactor of the polling/sleep mechanics can't silently
+    change what counts as success without a test catching it."""
+    return 0 if result == "PASSED" else 1
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--test-id", required=True)
@@ -50,14 +64,14 @@ def main() -> int:
         status = run.get("status")
         print(f"[{elapsed}s] test run {run['testRunId']} status={status}")
 
-        if status in ("DONE", "FAILED", "CANCELLED"):
+        if is_terminal_status(status):
             result = run.get("testResult", "UNKNOWN")
             print(f"\nFinal result: {result}")
             for criterion, outcome in run.get("testArtifacts", {}).get(
                 "outputArtifacts", {}
             ).items():
                 print(f"  {criterion}: {outcome}")
-            return 0 if result == "PASSED" else 1
+            return exit_code_for_result(result)
 
         time.sleep(args.poll_interval)
         elapsed += args.poll_interval
