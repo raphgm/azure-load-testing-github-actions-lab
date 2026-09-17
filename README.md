@@ -99,6 +99,19 @@ python check_run.py --test-id payments-api-pr-check
 
 ---
 
+## Alternative: client-secret auth instead of OIDC
+
+Everything above uses OIDC (Microsoft Entra Workload ID federation) — no stored secrets, the recommended path. If your setup can't use OIDC (an older `azure/login@v1`-only integration, or a runner that can't request a federated token), `scripts/create-service-principal-secret.sh` creates a classic service principal with a client secret instead:
+
+```bash
+./scripts/create-service-principal-secret.sh payments-api-loadtest-gha-secret rg-payments-perf
+gh secret set AZURE_CREDENTIALS --body '<the JSON the script prints>'
+```
+
+Then swap `azure/login@v2` (client-id/tenant-id/subscription-id) for `azure/login@v1` with `creds: ${{ secrets.AZURE_CREDENTIALS }}` in the workflow. This path stores a real secret in GitHub — rotate it periodically; OIDC has no equivalent rotation burden, which is why it's the default here.
+
+---
+
 ## License
 
 MIT — use it, fork it, adapt it to your own pipeline.
